@@ -12,3 +12,8 @@ Le projet est basé sur deux Arduino Nano 33 IoT (https://docs.arduino.cc/hardwa
 Le premier mesure son inclinaison en degrès puis transmet en Bluetooth la valeur mesurée au second module Arduino. Ce dernier affiche la valeur reçue via un petit écran OLED de 128x64 pixels (https://www.az-delivery.de/en/products/0-96zolldisplay).
 
 Les deux modules Arduino sont autonomes à l'aide d'une petite batterie USB.
+
+# Documentation
+
+* Comment connecter deux Arduino en Bluetooth : https://docs.arduino.cc/tutorials/nano-33-ble-sense/ble-device-to-device?utm_source=pocket_mylist
+* Utiliser l'accelerometre : https://docs.arduino.cc/tutorials/nano-33-iot/imu-accelerometer?utm_source=pocket_mylist

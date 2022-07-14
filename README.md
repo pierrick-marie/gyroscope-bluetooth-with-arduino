@@ -4,7 +4,9 @@ Gyroscope à affichage déporté en Bluetooth basé sur deux Arduino Nano 33 IoT
 
 # Objectif 
 
-L'objectif du projet est de mesurer l'inclinaison d'une pente en degrès en temps réel et l'afficher sur écran déporté. La communication entre les élements du dispositif doit être sans fil.
+L'objectif du projet est de mesurer l'inclinaison d'une pente en degrès en temps réel et l'afficher sur écran déporté.
+C'est une sorte de niveau à bulle électronique avec un affichage déporté.
+La communication entre les élements du dispositif doit être sans fil.
 
 # Matériel
 
@@ -17,3 +19,4 @@ Les deux modules Arduino sont autonomes à l'aide d'une petite batterie USB.
 
 * Comment connecter deux Arduino en Bluetooth : https://docs.arduino.cc/tutorials/nano-33-ble-sense/ble-device-to-device?utm_source=pocket_mylist
 * Utiliser l'accelerometre : https://docs.arduino.cc/tutorials/nano-33-iot/imu-accelerometer?utm_source=pocket_mylist
+* Utiliser l'écran OLED : https://passionelectronique.fr/ecran-oled-i2c-arduino/?utm_source=pocket_mylist

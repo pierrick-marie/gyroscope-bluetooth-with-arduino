@@ -7,7 +7,7 @@
 
     The circuit:
       - Arduino MKR WiFi 1010, Arduino Uno WiFi Rev2 board, Arduino Nano 33 IoT, Arduino Nano 33 BLE, or Arduino Nano 33 BLE Sense board.
-  
+
     Licence
       DO WHAT THE FUCK YOU WANT TO PUBLIC LICENSE
                    Version 2, December 2004
@@ -32,9 +32,9 @@ float x, y, z;
 int angl;
 
 void setup() {
-    
+
     Serial.begin(9600);
-    
+
     if (!IMU.begin()) {
         Serial.println("Failed to initialize IMU!");
         while (1);
@@ -64,7 +64,7 @@ void loop() {
           Serial.print("' ");
           Serial.print(peripheral.advertisedServiceUuid());
           Serial.println();
-    
+
         if (peripheral.localName() != "ACCELEROMETER") {
             return;
         }
@@ -122,7 +122,7 @@ void controlLed(BLEDevice peripheral) {
             Serial.println(" °");
             accelCharacteristic.writeValue((byte)angl);
         }
-        delay(1000);
+        delay(500);
     }
 
     Serial.println("Peripheral disconnected");

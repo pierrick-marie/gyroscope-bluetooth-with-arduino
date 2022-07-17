@@ -17,79 +17,92 @@
 
 #include <Arduino_LSM6DS3.h>
 
+#define MAX_VALUE 10
+
 float x, y, z;
 int degreesX = 0;
 int degreesY = 0;
 int degreesZ = 0;
 
+int i;
+int upAngle, leftAngle;
+int upValues[] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+int leftValues[] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+
+
 void setup() {
-  Serial.begin(9600);
-  while (!Serial);
-  Serial.println("Started");
+    Serial.begin(9600);
+    // Serial.println("Started");
+    while (!Serial);
 
-  if (!IMU.begin()) {
-    Serial.println("Failed to initialize IMU!");
-    while (1);
-  }
-
-  Serial.print("Accelerometer sample rate = ");
-  Serial.print(IMU.accelerationSampleRate());
-  Serial.println("Hz");
+    if (!IMU.begin()) {
+      // Serial.println("Failed to initialize IMU!");
+      while (1);
+    }
 }
 
 void loop() {
 
-  if (IMU.accelerationAvailable()) {
-    IMU.readAcceleration(x, y, z);
+    for (i = 0; i < MAX_VALUE; i++) {
+        if (IMU.accelerationAvailable()) {
+            IMU.readAcceleration(x, y, z);
+        }
 
+        x = -100 * x;
+        degreesX = map(x, -100, 100, -90, 90);
+        upValues[i] = degreesX;
+
+        z = 100 * z;
+        degreesZ = map(z, -100, 100, -90, 90);
+        leftValues[i] = degreesZ;
+
+        delay(500);
+    }
+
+    upAngle = simplify(fn_mean(upValues));
+    leftAngle = fn_mean(leftValues);
+
+    Serial.print("DEBUG upAngle: ");
+    Serial.println(upAngle);
+    Serial.print("DEBUG leftAngle: ");
+    Serial.println(leftAngle);
+    Serial.println("");
+
+    if (leftAngle > 0) { // left side
+        upAngle = 270 + upAngle;
+    } else { // leftAngle > 0 => rigt side
+        upAngle = 90 - upAngle;
+    }
+
+    Serial.print("Final up angle = ");
+    Serial.print(upAngle);
+    Serial.println("°");
+}
+
+int fn_decade(int value) {
+    int res = value / MAX_VALUE;
+    return res * MAX_VALUE;
+}
+
+int fn_unit(int value) {
+    int decade = fn_decade(value);
+    return value - decade;
+}
+
+int simplify(int value) {
+    int unit = fn_unit(value);
+
+    if (unit >= 5) {
+        return fn_decade(value) + 10;
+    } else {
+        return fn_decade(value);
+    }
+}
+
+int fn_mean(int values[]) {
+  int res = 0;
+  for (int i = 0; i < MAX_VALUE; i++) {
+      res = res + values[i];
   }
-
-  /*
-  if (x >= 0) {
-    x = 100 * x;
-    degreesX = map(x, 0, 100, 0, 90);
-    Serial.print("Tilting down ");
-    Serial.print(degreesX);
-    Serial.println("  degrees");
-  }
-  if (x < 0) {
-    x = 100 * x;
-    degreesX = map(x, 0, -100, 0, 90);
-    Serial.print("Tilting up ");
-    Serial.print(degreesX);
-    Serial.println("  degrees");
-  }
-  */
-
-  x = -100 * x;
-  degreesX = map(x, -100, 100, -90, 90);
-  Serial.print("Tilting up/down ");
-  Serial.print(degreesX);
-  Serial.println(" degrees");
-
-  z = 100 * z;
-  degreesZ = map(z, -100, 100, -90, 90);
-  Serial.print("Tilting left/right ");
-  Serial.print(degreesZ);
-  Serial.println(" degrees");
-
-  /*
-  if (z >= 0) {
-    z = 100 * z;
-    degreesZ = map(z, 0, 100, 0, 90);
-    Serial.print("Tilting left ");
-    Serial.print(degreesZ);
-    Serial.println("  degrees");
-  }
-  if (z < 0) {
-    z = 100 * z;
-    degreesZ = map(z, 0, -100, 0, 90);
-    Serial.print("Tilting right ");
-    Serial.print(degreesZ);
-    Serial.println("  degrees");
-  }
-  */
-
-  Serial.println("");
-  delay(1000);
+  return res / MAX_VALUE;
 }

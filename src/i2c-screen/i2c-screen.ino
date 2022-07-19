@@ -72,177 +72,122 @@ const int COORD_160_2[] = {49, 0, 81, 31};
 const int COORD_170_1[] = {56, 0, 72, 31};
 const int COORD_170_2[] = {57, 0, 73, 31};
 
-
 void setup() {
-      Serial.begin(9600);
+	Serial.begin(9600);
 
-    // SSD1306_SWITCHCAPVCC = generate display voltage from 3.3V internally
-      if(!display.begin(SSD1306_SWITCHCAPVCC, SCREEN_ADDRESS)) {
-          Serial.println(F("SSD1306 allocation failed"));
-          for(;;); // Don't proceed, loop forever
-      }
+	// SSD1306_SWITCHCAPVCC = generate display voltage from 3.3V internally
+	if(!display.begin(SSD1306_SWITCHCAPVCC, SCREEN_ADDRESS)) {
+		Serial.println(F("SSD1306 allocation failed"));
+		for(;;); // Don't proceed, loop forever
+	}
 
-      // Clear the buffer
-      display.clearDisplay();
-
-      // testdrawchar();      // Draw characters of the default font
+	// Clear the buffer
+	display.clearDisplay();
 }
 
 void loop() {
-    testdrawline();
+
+	for (int i = 0; i < 36; i++) {
+		drawline(i * 10);
+		delay(1000);
+	}
 }
 
-void testdrawchar(void) {
+void drawline(int value) {
 
-      display.clearDisplay();
-
-      display.setTextSize(5);      // Normal 1:1 pixel scale
-      display.setTextColor(WHITE); // Draw white text
-      display.setCursor(18, 0);     // Start at top-left corner
-      display.cp437(true);         // Use full 256 char 'Code Page 437' font
-
-      int valeurTemperature = 25;        // Température, exprimée en degrés Celsius
-      display.print("+");
-      display.print(valeurTemperature);
-
-      display.display();
-      delay(1000);
-}
-
-void testdrawline() {
-
-      // 00°|360° - 180°
-      display.drawLine(COORD_00_1[0], COORD_00_1[1], COORD_00_1[2], COORD_00_1[3], WHITE);
-      display.drawLine(COORD_00_2[0], COORD_00_2[1], COORD_00_2[2], COORD_00_2[3], WHITE);
-      display.display();
-      delay(1000);
-      display.clearDisplay();
-
-
-      // 10° - 190°
-      display.drawLine(COORD_10_1[0], COORD_10_1[1], COORD_10_1[2], COORD_10_1[3], WHITE);
-      display.drawLine(COORD_10_2[0], COORD_10_2[1], COORD_10_2[2], COORD_10_2[3], WHITE);
-      display.display();
-      delay(1000);
-      display.clearDisplay();
-
-
-      // 20° - 200°
-      display.drawLine(COORD_20_1[0], COORD_20_1[1], COORD_20_1[2], COORD_20_1[3], WHITE);
-      display.drawLine(COORD_20_2[0], COORD_20_2[1], COORD_20_2[2], COORD_20_2[3], WHITE);
-      display.display();
-      delay(1000);
-      display.clearDisplay();
-
-
-      // 30° - 210°
-      display.drawLine(COORD_30_1[0], COORD_30_1[1], COORD_30_1[2], COORD_30_1[3], WHITE);
-      display.drawLine(COORD_30_2[0], COORD_30_2[1], COORD_30_2[2], COORD_30_2[3], WHITE);
-      display.display();
-      delay(1000);
-      display.clearDisplay();
-
-
-      // 40° - 220°
-      display.drawLine(COORD_40_1[0], COORD_40_1[1], COORD_40_1[2], COORD_40_1[3], WHITE);
-      display.drawLine(COORD_40_2[0], COORD_40_2[1], COORD_40_2[2], COORD_40_2[3], WHITE);
-      display.display();
-      delay(1000);
-      display.clearDisplay();
-
-
-      // 50° - 230°
-      display.drawLine(COORD_50_1[0], COORD_50_1[1], COORD_50_1[2], COORD_50_1[3], WHITE);
-      display.drawLine(COORD_50_2[0], COORD_50_2[1], COORD_50_2[2], COORD_50_2[3], WHITE);
-      display.display();
-      delay(1000);
-      display.clearDisplay();
-
-
-      // 60° - 240°
-      display.drawLine(COORD_60_1[0], COORD_60_1[1], COORD_60_1[2], COORD_60_1[3], WHITE);
-      display.drawLine(COORD_60_2[0], COORD_60_2[1], COORD_60_2[2], COORD_60_2[3], WHITE);
-      display.display();
-      delay(1000);
-      display.clearDisplay();
-
-
-      // 70° - 250°
-      display.drawLine(COORD_70_1[0], COORD_70_1[1], COORD_70_1[2], COORD_70_1[3], WHITE);
-      display.drawLine(COORD_70_2[0], COORD_70_2[1], COORD_70_2[2], COORD_70_2[3], WHITE);
-      display.display();
-      delay(1000);
-      display.clearDisplay();
-
-
-      // 80° - 260°
-      display.drawLine(COORD_80_1[0], COORD_80_1[1], COORD_80_1[2], COORD_80_1[3], WHITE);
-      display.drawLine(COORD_80_2[0], COORD_80_2[1], COORD_80_2[2], COORD_80_2[3], WHITE);
-      display.display();
-      delay(1000);
-      display.clearDisplay();
-
-
-      // 90° - 270°
-      display.drawLine(COORD_90_1[0], COORD_90_1[1], COORD_90_1[2], COORD_90_1[3], WHITE);
-      display.drawLine(COORD_90_2[0], COORD_90_2[1], COORD_90_2[2], COORD_90_2[3], WHITE);
-      display.display();
-      delay(1000);
-      display.clearDisplay();
-
-      // 100° - 280°
-      display.drawLine(COORD_100_1[0], COORD_100_1[1], COORD_100_1[2], COORD_100_1[3], WHITE);
-      display.drawLine(COORD_100_2[0], COORD_100_2[1], COORD_100_2[2], COORD_100_2[3], WHITE);
-      display.display();
-      delay(1000);
-      display.clearDisplay();
-
-      // 110° - 290°
-      display.drawLine(COORD_110_1[0], COORD_110_1[1], COORD_110_1[2], COORD_110_1[3], WHITE);
-      display.drawLine(COORD_110_2[0], COORD_110_2[1], COORD_110_2[2], COORD_110_2[3], WHITE);
-      display.display();
-      delay(1000);
-      display.clearDisplay();
-
-      // 120° - 300°
-      display.drawLine(COORD_120_1[0], COORD_120_1[1], COORD_120_1[2], COORD_120_1[3], WHITE);
-      display.drawLine(COORD_120_2[0], COORD_120_2[1], COORD_120_2[2], COORD_120_2[3], WHITE);
-      display.display();
-      delay(1000);
-      display.clearDisplay();
-
-      //130° - 310°
-      display.drawLine(COORD_130_1[0], COORD_130_1[1], COORD_130_1[2], COORD_130_1[3], WHITE);
-      display.drawLine(COORD_130_2[0], COORD_130_2[1], COORD_130_2[2], COORD_130_2[3], WHITE);
-      display.display();
-      delay(1000);
-      display.clearDisplay();
-
-      // 140° - 320°
-      display.drawLine(COORD_140_1[0], COORD_140_1[1], COORD_140_1[2], COORD_140_1[3], WHITE);
-      display.drawLine(COORD_140_2[0], COORD_140_2[1], COORD_140_2[2], COORD_140_2[3], WHITE);
-      display.display();
-      delay(1000);
-      display.clearDisplay();
-
-      // 150° - 330°
-      display.drawLine(COORD_150_1[0], COORD_150_1[1], COORD_150_1[2], COORD_150_1[3], WHITE);
-      display.drawLine(COORD_150_2[0], COORD_150_2[1], COORD_150_2[2], COORD_150_2[3], WHITE);
-      display.display();
-      delay(1000);
-      display.clearDisplay();
-
-      // 160° - 340°
-      display.drawLine(COORD_160_1[0], COORD_160_1[1], COORD_160_1[2], COORD_160_1[3], WHITE);
-      display.drawLine(COORD_160_2[0], COORD_160_2[1], COORD_160_2[2], COORD_160_2[3], WHITE);
-      display.display();
-      delay(1000);
-      display.clearDisplay();
-
-      // 170° - 350°
-      display.drawLine(COORD_170_1[0], COORD_170_1[1], COORD_170_1[2], COORD_170_1[3], WHITE);
-      display.drawLine(COORD_170_2[0], COORD_170_2[1], COORD_170_2[2], COORD_170_2[3], WHITE);
-      display.display();
-      delay(1000);
-      display.clearDisplay();
+	display.clearDisplay();
+	switch (value) {
+  		case 0:
+		case 180:
+		case 360:
+            	display.drawLine(COORD_00_1[0], COORD_00_1[1], COORD_00_1[2], COORD_00_1[3], WHITE);
+            	display.drawLine(COORD_00_2[0], COORD_00_2[1], COORD_00_2[2], COORD_00_2[3], WHITE);
+            	break;
+		case 10:
+		case 190:
+			display.drawLine(COORD_10_1[0], COORD_10_1[1], COORD_10_1[2], COORD_10_1[3], WHITE);
+			display.drawLine(COORD_10_2[0], COORD_10_2[1], COORD_10_2[2], COORD_10_2[3], WHITE);
+			break;
+		case 20:
+		case 200:
+			display.drawLine(COORD_20_1[0], COORD_20_1[1], COORD_20_1[2], COORD_20_1[3], WHITE);
+			display.drawLine(COORD_20_2[0], COORD_20_2[1], COORD_20_2[2], COORD_20_2[3], WHITE);
+			break;
+		case 30:
+		case 210:
+			display.drawLine(COORD_30_1[0], COORD_30_1[1], COORD_30_1[2], COORD_30_1[3], WHITE);
+			display.drawLine(COORD_30_2[0], COORD_30_2[1], COORD_30_2[2], COORD_30_2[3], WHITE);
+			break;
+		case 40:
+		case 220:
+			display.drawLine(COORD_40_1[0], COORD_40_1[1], COORD_40_1[2], COORD_40_1[3], WHITE);
+			display.drawLine(COORD_40_2[0], COORD_40_2[1], COORD_40_2[2], COORD_40_2[3], WHITE);
+			break;
+		case 50:
+		case 230:
+			display.drawLine(COORD_50_1[0], COORD_50_1[1], COORD_50_1[2], COORD_50_1[3], WHITE);
+			display.drawLine(COORD_50_2[0], COORD_50_2[1], COORD_50_2[2], COORD_50_2[3], WHITE);
+			break;
+		case 60:
+		case 240:
+			display.drawLine(COORD_60_1[0], COORD_60_1[1], COORD_60_1[2], COORD_60_1[3], WHITE);
+			display.drawLine(COORD_60_2[0], COORD_60_2[1], COORD_60_2[2], COORD_60_2[3], WHITE);
+			break;
+		case 70:
+		case 250:
+			display.drawLine(COORD_70_1[0], COORD_70_1[1], COORD_70_1[2], COORD_70_1[3], WHITE);
+			display.drawLine(COORD_70_2[0], COORD_70_2[1], COORD_70_2[2], COORD_70_2[3], WHITE);
+			break;
+		case 80:
+		case 260:
+			display.drawLine(COORD_80_1[0], COORD_80_1[1], COORD_80_1[2], COORD_80_1[3], WHITE);
+			display.drawLine(COORD_80_2[0], COORD_80_2[1], COORD_80_2[2], COORD_80_2[3], WHITE);
+			break;
+		case 90:
+		case 270:
+			display.drawLine(COORD_90_1[0], COORD_90_1[1], COORD_90_1[2], COORD_90_1[3], WHITE);
+			display.drawLine(COORD_90_2[0], COORD_90_2[1], COORD_90_2[2], COORD_90_2[3], WHITE);
+			break;
+		case 100:
+		case 280:
+			display.drawLine(COORD_100_1[0], COORD_100_1[1], COORD_100_1[2], COORD_100_1[3], WHITE);
+			display.drawLine(COORD_100_2[0], COORD_100_2[1], COORD_100_2[2], COORD_100_2[3], WHITE);
+			break;
+		case 110:
+		case 290:
+			display.drawLine(COORD_110_1[0], COORD_110_1[1], COORD_110_1[2], COORD_110_1[3], WHITE);
+			display.drawLine(COORD_110_2[0], COORD_110_2[1], COORD_110_2[2], COORD_110_2[3], WHITE);
+			break;
+		case 120:
+		case 300:
+			display.drawLine(COORD_120_1[0], COORD_120_1[1], COORD_120_1[2], COORD_120_1[3], WHITE);
+			display.drawLine(COORD_120_2[0], COORD_120_2[1], COORD_120_2[2], COORD_120_2[3], WHITE);
+			break;
+		case 130:
+		case 310:
+			display.drawLine(COORD_130_1[0], COORD_130_1[1], COORD_130_1[2], COORD_130_1[3], WHITE);
+			display.drawLine(COORD_130_2[0], COORD_130_2[1], COORD_130_2[2], COORD_130_2[3], WHITE);
+			break;
+		case 140:
+		case 320:
+			display.drawLine(COORD_140_1[0], COORD_140_1[1], COORD_140_1[2], COORD_140_1[3], WHITE);
+			display.drawLine(COORD_140_2[0], COORD_140_2[1], COORD_140_2[2], COORD_140_2[3], WHITE);
+			break;
+		case 150:
+		case 330:
+			display.drawLine(COORD_150_1[0], COORD_150_1[1], COORD_150_1[2], COORD_150_1[3], WHITE);
+			display.drawLine(COORD_150_2[0], COORD_150_2[1], COORD_150_2[2], COORD_150_2[3], WHITE);
+			break;
+		case 160:
+		case 340:
+			display.drawLine(COORD_160_1[0], COORD_160_1[1], COORD_160_1[2], COORD_160_1[3], WHITE);
+			display.drawLine(COORD_160_2[0], COORD_160_2[1], COORD_160_2[2], COORD_160_2[3], WHITE);
+			break;
+		case 170:
+		case 350:
+			display.drawLine(COORD_170_1[0], COORD_170_1[1], COORD_170_1[2], COORD_170_1[3], WHITE);
+			display.drawLine(COORD_170_2[0], COORD_170_2[1], COORD_170_2[2], COORD_170_2[3], WHITE);
+		break;
+	}
+	display.display();
 }

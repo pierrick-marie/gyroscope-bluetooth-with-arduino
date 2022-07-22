@@ -28,6 +28,7 @@
 #include <Arduino_LSM6DS3.h>
 
 #define MAX_VALUE 10
+#define WAIT_VALUE 200
 
 float x, y, z;
 int degreesX = 0;
@@ -153,7 +154,7 @@ int fn_get_angle() {
 		degreesZ = map(z, -100, 100, -90, 90);
 		leftValues[i] = degreesZ;
 
-		delay(500);
+		delay(WAIT_VALUE);
 	}
 
 	upAngle = fn_simplify(fn_mean(upValues));

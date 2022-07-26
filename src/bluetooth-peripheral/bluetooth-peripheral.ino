@@ -33,11 +33,22 @@
 #define SCREEN_WIDTH 128 // OLED display width, in pixels
 #define SCREEN_HEIGHT 32 // OLED display height, in pixels
 
+#define WAIT_DELAY 1000
+
 #define OLED_RESET     -1 // Reset pin # (or -1 if sharing Arduino reset pin)
 #define SCREEN_ADDRESS 0x3C ///< See datasheet for Address; 0x3D for 128x64, 0x3C for 128x32
 
-const int COORD_00_1[] = {64, 0, 64, 31};
-const int COORD_00_2[] = {65, 0, 65, 31};
+#define NORTH 0
+#define EAST 1
+#define UP 0
+#define DOWN 1
+
+byte pole, direction, value;
+bool poleChanged = false;
+bool directionChanged = false;
+bool valueChanged = false;
+
+
 const int COORD_10_1[] = {72, 0, 56, 31};
 const int COORD_10_2[] = {73, 0, 57, 31};
 const int COORD_20_1[] = {80, 0, 48, 31};
@@ -54,8 +65,7 @@ const int COORD_70_1[] = {24, 21, 104, 10};
 const int COORD_70_2[] = {24, 22, 104, 11};
 const int COORD_80_1[] = {24, 19, 104, 13};
 const int COORD_80_2[] = {24, 20, 104, 12};
-const int COORD_90_1[] = {24, 16, 104, 16};
-const int COORD_90_2[] = {24, 17, 104, 17};
+
 const int COORD_100_1[] = {24, 13, 104, 19};
 const int COORD_100_2[] = {24, 12, 104, 20};
 const int COORD_110_1[] = {24, 10, 104, 21};
@@ -78,10 +88,10 @@ Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
 BLEService accelService("19b10000-e8f2-537e-4f6c-d104768a1214"); // Bluetooth® Low Energy Accelerometer Service
 
 // Bluetooth® Low Energy Accelerometer Characteristic - custom 128-bit UUID, read and writable by central
-BLEByteCharacteristic accelCharacteristic("19b10001-e8f2-537e-4f6c-d104768a1214", BLERead | BLEWrite);
-
-// const int ledPin = LED_BUILTIN; // pin to use for the LED
-int accelValue = 0;
+// BLEByteCharacteristic accelCharacteristic("19b10001-e8f2-537e-4f6c-d104768a1214", BLERead | BLEWrite);
+BLEByteCharacteristic poleCharacteristic("19b10001-e8f2-537e-4f6c-d104768a1215", BLERead | BLEWrite);
+BLEByteCharacteristic directionCharacteristic("19b10001-e8f2-537e-4f6c-d104768a1216", BLERead | BLEWrite);
+BLEByteCharacteristic valueCharacteristic("19b10001-e8f2-537e-4f6c-d104768a1217", BLERead | BLEWrite);
 
 void setup() {
 
@@ -109,13 +119,15 @@ void setup() {
 	BLE.setAdvertisedService(accelService);
 
 	// add the characteristic to the service
-	accelService.addCharacteristic(accelCharacteristic);
+	accelService.addCharacteristic(poleCharacteristic);
+	accelService.addCharacteristic(directionCharacteristic);
+	accelService.addCharacteristic(valueCharacteristic);
 
 	// add service
 	BLE.addService(accelService);
 
 	// set the initial value for the characeristic:
-	accelCharacteristic.writeValue(0);
+	// accelCharacteristic.writeValue(0);
 
 	// start advertising
 	BLE.advertise();
@@ -127,6 +139,7 @@ void loop() {
 	// listen for Bluetooth® Low Energy peripherals to connect:
 	BLEDevice central = BLE.central();
 
+	// const uint8_t* res;
 	// if a central is connected to peripheral:
 	if (central) {
 		Serial.print("Connected to central: ");
@@ -137,12 +150,45 @@ void loop() {
 		while (central.connected()) {
 			// if the remote device wrote to the characteristic,
 			// use the value to control the LED:
-			if (accelCharacteristic.written()) {
-				accelValue = accelCharacteristic.value();
-				accelValue = accelValue * 10;
-				Serial.print("Accel value = ");
-				Serial.println(accelValue);
-				fn_draw_line(accelValue);
+			if (poleCharacteristic.written()) {
+				poleCharacteristic.readValue(pole);
+				poleChanged = true;
+			}
+			if (directionCharacteristic.written()) {
+				directionCharacteristic.readValue(direction);
+				directionChanged = true;
+			}
+			if (valueCharacteristic.written()) {
+				valueCharacteristic.readValue(value);
+				valueChanged = true;
+			}
+
+			if (poleChanged && directionChanged && valueChanged) {
+
+				Serial.print("Pole: ");
+				Serial.println(pole);
+				Serial.print("Direction: ");
+				Serial.println(direction);
+				Serial.print("Value: ");
+				Serial.println(value);
+
+				if (pole == NORTH && value <= 1) {
+						fn_draw_line(0);
+				} else {
+					if (pole == EAST && value <= 1) {
+						fn_draw_line(90);
+					} else {
+						if (direction == UP) {
+							fn_draw_up_arrow(2);
+						} else {
+							fn_draw_down_arrow(2);
+						}
+					}
+				}
+
+				poleChanged = false;
+				directionChanged = false;
+				valueChanged = false;
 			}
 		}
 
@@ -152,6 +198,68 @@ void loop() {
 	}
 }
 
+void fn_draw_up_arrow(int nb_arrow) {
+
+	display.clearDisplay();
+	switch (nb_arrow) {
+		case 1:
+			display.drawLine(50, 0, 74, 15, WHITE);
+			display.drawLine(74, 15, 50, 31, WHITE);
+			display.drawLine(51, 0, 75, 15, WHITE);
+			display.drawLine(75, 15, 51, 31, WHITE);
+			break;
+		case 2:
+			display.drawLine(40, 0, 64, 15, WHITE);
+			display.drawLine(64, 15, 40, 31, WHITE);
+			display.drawLine(41, 0, 65, 15, WHITE);
+			display.drawLine(65, 15, 41, 31, WHITE);
+
+			display.drawLine(65, 0, 89, 15, WHITE);
+			display.drawLine(89, 15, 65, 31, WHITE);
+			display.drawLine(66, 0, 90, 15, WHITE);
+			display.drawLine(90, 15, 66, 31, WHITE);
+			break;
+		case 3:
+			break;
+		case 4:
+			break;
+		default:
+			break;
+	}
+	display.display();
+}
+
+void fn_draw_down_arrow(int nb_arrow) {
+
+	display.clearDisplay();
+	switch (nb_arrow) {
+		case 1:
+			display.drawLine(74, 0, 50, 15, WHITE);
+			display.drawLine(50, 15, 74, 31, WHITE);
+			display.drawLine(75, 0, 51, 15, WHITE);
+			display.drawLine(51, 15, 75, 31, WHITE);
+			break;
+		case 2:
+			display.drawLine(84, 0, 60, 15, WHITE);
+			display.drawLine(60, 15, 84, 31, WHITE);
+			display.drawLine(85, 0, 61, 15, WHITE);
+			display.drawLine(61, 15, 85, 31, WHITE);
+
+			display.drawLine(58, 0, 34, 15, WHITE);
+			display.drawLine(34, 15, 58, 31, WHITE);
+			display.drawLine(59, 0, 35, 15, WHITE);
+			display.drawLine(35, 15, 59, 31, WHITE);
+			break;
+		case 3:
+			break;
+		case 4:
+			break;
+		default:
+			break;
+	}
+	display.display();
+}
+
 void fn_draw_line(int value) {
 
 	display.clearDisplay();
@@ -159,97 +267,13 @@ void fn_draw_line(int value) {
   		case 0:
 		case 180:
 		case 360:
-            	display.drawLine(COORD_00_1[0], COORD_00_1[1], COORD_00_1[2], COORD_00_1[3], WHITE);
-            	display.drawLine(COORD_00_2[0], COORD_00_2[1], COORD_00_2[2], COORD_00_2[3], WHITE);
+            	display.drawLine(64, 0, 64, 31, WHITE);
+            	display.drawLine(65, 0, 65, 31, WHITE);
             	break;
-		case 10:
-		case 190:
-			display.drawLine(COORD_10_1[0], COORD_10_1[1], COORD_10_1[2], COORD_10_1[3], WHITE);
-			display.drawLine(COORD_10_2[0], COORD_10_2[1], COORD_10_2[2], COORD_10_2[3], WHITE);
-			break;
-		case 20:
-		case 200:
-			display.drawLine(COORD_20_1[0], COORD_20_1[1], COORD_20_1[2], COORD_20_1[3], WHITE);
-			display.drawLine(COORD_20_2[0], COORD_20_2[1], COORD_20_2[2], COORD_20_2[3], WHITE);
-			break;
-		case 30:
-		case 210:
-			display.drawLine(COORD_30_1[0], COORD_30_1[1], COORD_30_1[2], COORD_30_1[3], WHITE);
-			display.drawLine(COORD_30_2[0], COORD_30_2[1], COORD_30_2[2], COORD_30_2[3], WHITE);
-			break;
-		case 40:
-		case 220:
-			display.drawLine(COORD_40_1[0], COORD_40_1[1], COORD_40_1[2], COORD_40_1[3], WHITE);
-			display.drawLine(COORD_40_2[0], COORD_40_2[1], COORD_40_2[2], COORD_40_2[3], WHITE);
-			break;
-		case 50:
-		case 230:
-			display.drawLine(COORD_50_1[0], COORD_50_1[1], COORD_50_1[2], COORD_50_1[3], WHITE);
-			display.drawLine(COORD_50_2[0], COORD_50_2[1], COORD_50_2[2], COORD_50_2[3], WHITE);
-			break;
-		case 60:
-		case 240:
-			display.drawLine(COORD_60_1[0], COORD_60_1[1], COORD_60_1[2], COORD_60_1[3], WHITE);
-			display.drawLine(COORD_60_2[0], COORD_60_2[1], COORD_60_2[2], COORD_60_2[3], WHITE);
-			break;
-		case 70:
-		case 250:
-			display.drawLine(COORD_70_1[0], COORD_70_1[1], COORD_70_1[2], COORD_70_1[3], WHITE);
-			display.drawLine(COORD_70_2[0], COORD_70_2[1], COORD_70_2[2], COORD_70_2[3], WHITE);
-			break;
-		case 80:
-		case 260:
-			display.drawLine(COORD_80_1[0], COORD_80_1[1], COORD_80_1[2], COORD_80_1[3], WHITE);
-			display.drawLine(COORD_80_2[0], COORD_80_2[1], COORD_80_2[2], COORD_80_2[3], WHITE);
-			break;
 		case 90:
 		case 270:
-			display.drawLine(COORD_90_1[0], COORD_90_1[1], COORD_90_1[2], COORD_90_1[3], WHITE);
-			display.drawLine(COORD_90_2[0], COORD_90_2[1], COORD_90_2[2], COORD_90_2[3], WHITE);
-			break;
-		case 100:
-		case 280:
-			display.drawLine(COORD_100_1[0], COORD_100_1[1], COORD_100_1[2], COORD_100_1[3], WHITE);
-			display.drawLine(COORD_100_2[0], COORD_100_2[1], COORD_100_2[2], COORD_100_2[3], WHITE);
-			break;
-		case 110:
-		case 290:
-			display.drawLine(COORD_110_1[0], COORD_110_1[1], COORD_110_1[2], COORD_110_1[3], WHITE);
-			display.drawLine(COORD_110_2[0], COORD_110_2[1], COORD_110_2[2], COORD_110_2[3], WHITE);
-			break;
-		case 120:
-		case 300:
-			display.drawLine(COORD_120_1[0], COORD_120_1[1], COORD_120_1[2], COORD_120_1[3], WHITE);
-			display.drawLine(COORD_120_2[0], COORD_120_2[1], COORD_120_2[2], COORD_120_2[3], WHITE);
-			break;
-		case 130:
-		case 310:
-			display.drawLine(COORD_130_1[0], COORD_130_1[1], COORD_130_1[2], COORD_130_1[3], WHITE);
-			display.drawLine(COORD_130_2[0], COORD_130_2[1], COORD_130_2[2], COORD_130_2[3], WHITE);
-			break;
-		case 140:
-		case 320:
-			display.drawLine(COORD_140_1[0], COORD_140_1[1], COORD_140_1[2], COORD_140_1[3], WHITE);
-			display.drawLine(COORD_140_2[0], COORD_140_2[1], COORD_140_2[2], COORD_140_2[3], WHITE);
-			break;
-		case 150:
-		case 330:
-			display.drawLine(COORD_150_1[0], COORD_150_1[1], COORD_150_1[2], COORD_150_1[3], WHITE);
-			display.drawLine(COORD_150_2[0], COORD_150_2[1], COORD_150_2[2], COORD_150_2[3], WHITE);
-			break;
-		case 160:
-		case 340:
-			display.drawLine(COORD_160_1[0], COORD_160_1[1], COORD_160_1[2], COORD_160_1[3], WHITE);
-			display.drawLine(COORD_160_2[0], COORD_160_2[1], COORD_160_2[2], COORD_160_2[3], WHITE);
-			break;
-		case 170:
-		case 350:
-			display.drawLine(COORD_170_1[0], COORD_170_1[1], COORD_170_1[2], COORD_170_1[3], WHITE);
-			display.drawLine(COORD_170_2[0], COORD_170_2[1], COORD_170_2[2], COORD_170_2[3], WHITE);
-			break;
-		default: // Draw vertical line
-			display.drawLine(COORD_00_1[0], COORD_00_1[1], COORD_00_1[2], COORD_00_1[3], WHITE);
-			display.drawLine(COORD_00_2[0], COORD_00_2[1], COORD_00_2[2], COORD_00_2[3], WHITE);
+			display.drawLine(24, 16, 104, 16, WHITE);
+			display.drawLine(24, 17, 104, 17, WHITE);
 			break;
 	}
 	display.display();

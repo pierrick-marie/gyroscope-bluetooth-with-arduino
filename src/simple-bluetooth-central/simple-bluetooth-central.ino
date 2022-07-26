@@ -25,15 +25,14 @@
 */
 
 #include <ArduinoBLE.h>
-#include <Arduino_LSM6DS3.h>
 
 #define MAX_VALUE 10
-#define WAIT_VALUE 100
+#define WAIT_VALUE 200
 
-#define NORTH 0
+#define NORT 0
 #define EAST 1
-#define UP 0
-#define DOWN 1
+#define PLUS 0
+#define MINUS 1
 
 float x, y, z;
 int degreesX = 0;
@@ -47,15 +46,11 @@ int leftValues[] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 
 byte pole, direction, value;
 
+// BLECharacteristic accelCharacteristic("19b10001-e8f2-537e-4f6c-d104768a1214", BLERead | BLEWrite, false, sizeof(sendValues));
+
 void setup() {
 
 	Serial.begin(9600);
-
-	if (!IMU.begin()) {
-		Serial.println("Failed to initialize IMU!");
-		while (1);
-	}
-	Serial.print(IMU.accelerationSampleRate());
 
 	// initialize the Bluetooth® Low Energy hardware
 	BLE.begin();
@@ -117,124 +112,31 @@ void fn_start_service(BLEDevice peripheral) {
 		return;
 	}
 
-	// retrieve the Accelerometer characteristic
+	// retrieve the pole characteristic
 	BLECharacteristic poleCharacteristic = peripheral.characteristic("19b10001-e8f2-537e-4f6c-d104768a1215");
 	BLECharacteristic directionCharacteristic = peripheral.characteristic("19b10001-e8f2-537e-4f6c-d104768a1216");
 	BLECharacteristic valueCharacteristic = peripheral.characteristic("19b10001-e8f2-537e-4f6c-d104768a1217");
 
-	if (!poleCharacteristic) {
-		Serial.println("Peripheral does not have Accelerator characteristic!");
-		peripheral.disconnect();
-		return;
-	} else if (!poleCharacteristic.canWrite()) {
-		Serial.println("Peripheral does not have a writable Accelerator characteristic!");
-		peripheral.disconnect();
-		return;
-	}
-
+	int i = 1;
 	// send values
-	int angle;
 	while (peripheral.connected()) {
 
-		angle = fn_get_angle();
-		Serial.print("Final up angle = ");
-		Serial.print(angle);
-		Serial.println("°");
-
-		if (angle > 315 && angle <= 360) {
-			pole = (byte)NORTH;
-			direction = (byte)DOWN;
-			value = (byte)abs(360 - angle);
-		}
-		if (angle >= 0 && angle < 45) {
-			pole = (byte)NORTH;
-			direction = (byte)UP;
-			value = (byte)angle;
-		}
-		if (angle > 225 && angle <= 270) {
-			pole = (byte)EAST;
-			direction = (byte)DOWN;
-			value = (byte)abs(270 - angle);
-		}
-		if (angle >= 270 && angle < 315) {
-			pole = (byte)EAST;
-			direction = (byte)UP;
-			value = (byte)abs(270 - angle);
-		}
-
+		pole = (byte)i;
 		Serial.print("Pole: ");
-		Serial.print(pole);
+		Serial.println(pole);
+		direction = (byte)(i + 3);
 		Serial.print(" Direction: ");
-		Serial.print(direction);
+		Serial.println(direction);
+		value = (byte)(i + 10);
 		Serial.print(" Value: ");
 		Serial.println(value);
 
 		poleCharacteristic.writeValue(pole);
 		directionCharacteristic.writeValue(direction);
 		valueCharacteristic.writeValue(value);
-	}
 
+		delay(1000);
+		i++;
+	}
 	Serial.println("Peripheral disconnected");
-}
-
-int fn_get_angle() {
-
-	for (i = 0; i < MAX_VALUE; i++) {
-		if (IMU.accelerationAvailable()) {
-			IMU.readAcceleration(x, y, z);
-		}
-
-		x = -100 * x;
-		degreesX = map(x, -100, 100, -90, 90);
-		upValues[i] = degreesX;
-
-		z = 100 * z;
-		degreesZ = map(z, -100, 100, -90, 90);
-		leftValues[i] = degreesZ;
-
-		delay(WAIT_VALUE);
-	}
-
-	upAngle = fn_mean(upValues);
-	leftAngle = fn_mean(leftValues);
-
-	if (leftAngle > 0) { // left side
-		upAngle = 270 + upAngle;
-	} else { // leftAngle > 0 => rigt side
-		upAngle = 90 - upAngle;
-	}
-
-	return upAngle;
-}
-
-int fn_decade(int value) {
-
-	int res = value / MAX_VALUE;
-	return res * MAX_VALUE;
-}
-
-int fn_unit(int value) {
-
-	int decade = fn_decade(value);
-	return value - decade;
-}
-
-int fn_simplify(int value) {
-
-	int unit = fn_unit(value);
-
-	if (unit >= 5) {
-		return fn_decade(value) + 10;
-	} else {
-		return fn_decade(value);
-	}
-}
-
-int fn_mean(int values[]) {
-
-	int res = 0;
-	for (int i = 0; i < MAX_VALUE; i++) {
-		res = res + values[i];
-	}
-	return res / MAX_VALUE;
 }

@@ -123,8 +123,6 @@ void fn_draw_up(int nb_arrow) {
 	display.display();
 }
 
-
-
 void fn_draw_down(int nb_arrow) {
 
 	display.clearDisplay();

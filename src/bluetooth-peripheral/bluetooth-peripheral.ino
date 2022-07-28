@@ -43,45 +43,10 @@
 #define UP 0
 #define DOWN 1
 
-byte pole, direction, value;
+byte pole, direction, angle;
 bool poleChanged = false;
 bool directionChanged = false;
-bool valueChanged = false;
-
-
-const int COORD_10_1[] = {72, 0, 56, 31};
-const int COORD_10_2[] = {73, 0, 57, 31};
-const int COORD_20_1[] = {80, 0, 48, 31};
-const int COORD_20_2[] = {81, 0, 49, 31};
-const int COORD_30_1[] = {90, 0, 38, 31};
-const int COORD_30_2[] = {91, 0, 39, 31};
-const int COORD_40_1[] = {100, 0, 28, 31};
-const int COORD_40_2[] = {101, 0, 29, 31};
-const int COORD_50_1[] = {24, 28, 104, 3};
-const int COORD_50_2[] = {24, 29, 104, 4};
-const int COORD_60_1[] = {24, 24, 104, 7};
-const int COORD_60_2[] = {24, 25, 104, 8};
-const int COORD_70_1[] = {24, 21, 104, 10};
-const int COORD_70_2[] = {24, 22, 104, 11};
-const int COORD_80_1[] = {24, 19, 104, 13};
-const int COORD_80_2[] = {24, 20, 104, 12};
-
-const int COORD_100_1[] = {24, 13, 104, 19};
-const int COORD_100_2[] = {24, 12, 104, 20};
-const int COORD_110_1[] = {24, 10, 104, 21};
-const int COORD_110_2[] = {24, 11, 104, 22};
-const int COORD_120_1[] = {24, 7, 104, 24};
-const int COORD_120_2[] = {24, 8, 104, 25};
-const int COORD_130_1[] = {24, 3, 104, 28};
-const int COORD_130_2[] = {24, 4, 104, 29};
-const int COORD_140_1[] = {28, 0, 100, 31};
-const int COORD_140_2[] = {29, 0, 101, 31};
-const int COORD_150_1[] = {38, 0, 90, 31};
-const int COORD_150_2[] = {39, 0, 91, 31};
-const int COORD_160_1[] = {48, 0, 80, 31};
-const int COORD_160_2[] = {49, 0, 81, 31};
-const int COORD_170_1[] = {56, 0, 72, 31};
-const int COORD_170_2[] = {57, 0, 73, 31};
+bool angleChanged = false;
 
 Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
 
@@ -91,7 +56,7 @@ BLEService accelService("19b10000-e8f2-537e-4f6c-d104768a1214"); // Bluetooth® 
 // BLEByteCharacteristic accelCharacteristic("19b10001-e8f2-537e-4f6c-d104768a1214", BLERead | BLEWrite);
 BLEByteCharacteristic poleCharacteristic("19b10001-e8f2-537e-4f6c-d104768a1215", BLERead | BLEWrite);
 BLEByteCharacteristic directionCharacteristic("19b10001-e8f2-537e-4f6c-d104768a1216", BLERead | BLEWrite);
-BLEByteCharacteristic valueCharacteristic("19b10001-e8f2-537e-4f6c-d104768a1217", BLERead | BLEWrite);
+BLEByteCharacteristic angleCharacteristic("19b10001-e8f2-537e-4f6c-d104768a1217", BLERead | BLEWrite);
 
 void setup() {
 
@@ -121,7 +86,7 @@ void setup() {
 	// add the characteristic to the service
 	accelService.addCharacteristic(poleCharacteristic);
 	accelService.addCharacteristic(directionCharacteristic);
-	accelService.addCharacteristic(valueCharacteristic);
+	accelService.addCharacteristic(angleCharacteristic);
 
 	// add service
 	BLE.addService(accelService);
@@ -158,37 +123,41 @@ void loop() {
 				directionCharacteristic.readValue(direction);
 				directionChanged = true;
 			}
-			if (valueCharacteristic.written()) {
-				valueCharacteristic.readValue(value);
-				valueChanged = true;
+			if (angleCharacteristic.written()) {
+				angleCharacteristic.readValue(angle);
+				angleChanged = true;
 			}
 
-			if (poleChanged && directionChanged && valueChanged) {
+			if (poleChanged && directionChanged && angleChanged) {
 
 				Serial.print("Pole: ");
-				Serial.println(pole);
-				Serial.print("Direction: ");
-				Serial.println(direction);
-				Serial.print("Value: ");
-				Serial.println(value);
+				Serial.print(pole);
+				Serial.print(" Direction: ");
+				Serial.print(direction);
+				Serial.print(" Angle: ");
+				Serial.println(angle);
 
-				if (pole == NORTH && value <= 1) {
+				if (pole == NORTH && angle < 1) {
+						Serial.println("Draw line 0");
 						fn_draw_line(0);
 				} else {
-					if (pole == EAST && value <= 1) {
+					if (pole == EAST && angle < 1) {
+						Serial.println("Draw line 90");
 						fn_draw_line(90);
 					} else {
 						if (direction == UP) {
-							fn_draw_up_arrow(2);
+							Serial.println("Draw up arrow");
+							fn_draw_up(fn_get_nb_arrow(angle));
 						} else {
-							fn_draw_down_arrow(2);
+							Serial.println("Draw down arrow");
+							fn_draw_down(fn_get_nb_arrow(angle));
 						}
 					}
 				}
 
 				poleChanged = false;
 				directionChanged = false;
-				valueChanged = false;
+				angleChanged = false;
 			}
 		}
 
@@ -198,66 +167,98 @@ void loop() {
 	}
 }
 
-void fn_draw_up_arrow(int nb_arrow) {
+int fn_get_nb_arrow(int angle) {
+	if( angle >= 5 ) {
+		return 5;
+	} else {
+		return angle;
+	}
+}
+
+void fn_draw_up(int nb_arrow) {
 
 	display.clearDisplay();
 	switch (nb_arrow) {
 		case 1:
-			display.drawLine(50, 0, 74, 15, WHITE);
-			display.drawLine(74, 15, 50, 31, WHITE);
-			display.drawLine(51, 0, 75, 15, WHITE);
-			display.drawLine(75, 15, 51, 31, WHITE);
+			fn_draw_up_arrow(50);
 			break;
 		case 2:
-			display.drawLine(40, 0, 64, 15, WHITE);
-			display.drawLine(64, 15, 40, 31, WHITE);
-			display.drawLine(41, 0, 65, 15, WHITE);
-			display.drawLine(65, 15, 41, 31, WHITE);
-
-			display.drawLine(65, 0, 89, 15, WHITE);
-			display.drawLine(89, 15, 65, 31, WHITE);
-			display.drawLine(66, 0, 90, 15, WHITE);
-			display.drawLine(90, 15, 66, 31, WHITE);
+			fn_draw_up_arrow(30);
+			fn_draw_up_arrow(80);
 			break;
 		case 3:
+			fn_draw_up_arrow(12);
+			fn_draw_up_arrow(48);
+			fn_draw_up_arrow(86);
 			break;
 		case 4:
+			fn_draw_up_arrow(0);
+			fn_draw_up_arrow(32);
+			fn_draw_up_arrow(64);
+			fn_draw_up_arrow(96);
 			break;
 		default:
+			fn_draw_up_arrow(-24);
+			fn_draw_up_arrow(0);
+			fn_draw_up_arrow(24);
+			fn_draw_up_arrow(48);
+			fn_draw_up_arrow(72);
+			fn_draw_up_arrow(96);
+			fn_draw_up_arrow(120);
 			break;
 	}
 	display.display();
 }
 
-void fn_draw_down_arrow(int nb_arrow) {
+void fn_draw_down(int nb_arrow) {
 
 	display.clearDisplay();
 	switch (nb_arrow) {
 		case 1:
-			display.drawLine(74, 0, 50, 15, WHITE);
-			display.drawLine(50, 15, 74, 31, WHITE);
-			display.drawLine(75, 0, 51, 15, WHITE);
-			display.drawLine(51, 15, 75, 31, WHITE);
+			fn_draw_down_arrow(65);
 			break;
 		case 2:
-			display.drawLine(84, 0, 60, 15, WHITE);
-			display.drawLine(60, 15, 84, 31, WHITE);
-			display.drawLine(85, 0, 61, 15, WHITE);
-			display.drawLine(61, 15, 85, 31, WHITE);
-
-			display.drawLine(58, 0, 34, 15, WHITE);
-			display.drawLine(34, 15, 58, 31, WHITE);
-			display.drawLine(59, 0, 35, 15, WHITE);
-			display.drawLine(35, 15, 59, 31, WHITE);
+			fn_draw_down_arrow(45);
+			fn_draw_down_arrow(95);
 			break;
 		case 3:
+			fn_draw_down_arrow(34);
+			fn_draw_down_arrow(72);
+			fn_draw_down_arrow(110);
 			break;
 		case 4:
+			fn_draw_down_arrow(24);
+			fn_draw_down_arrow(56);
+			fn_draw_down_arrow(88);
+			fn_draw_down_arrow(120);
 			break;
 		default:
+			fn_draw_down_arrow(0);
+			fn_draw_down_arrow(24);
+			fn_draw_down_arrow(48);
+			fn_draw_down_arrow(72);
+			fn_draw_down_arrow(96);
+			fn_draw_down_arrow(120);
+			fn_draw_down_arrow(144);
 			break;
 	}
 	display.display();
+}
+
+void fn_draw_up_arrow(int coord) {
+	for (int i = 0; i < 8; i++) {
+		display.drawLine(coord, 0, (coord + 24), 15, WHITE);
+		display.drawLine((coord + 24), 15, coord, 31, WHITE);
+		coord = coord + 1;
+	}
+}
+
+void fn_draw_down_arrow(int coord) {
+	for (int i = 0; i < 8; i++) {
+		display.drawLine(coord, 0, (coord - 24), 15, WHITE);
+		display.drawLine((coord - 24), 15, coord, 31, WHITE);
+		coord = coord + 1;
+	}
 }
 
 void fn_draw_line(int value) {
@@ -267,9 +268,9 @@ void fn_draw_line(int value) {
 			case 0:
 		case 180:
 		case 360:
-							display.drawLine(64, 0, 64, 31, WHITE);
-							display.drawLine(65, 0, 65, 31, WHITE);
-							break;
+			display.drawLine(64, 0, 64, 31, WHITE);
+			display.drawLine(65, 0, 65, 31, WHITE);
+			break;
 		case 90:
 		case 270:
 			display.drawLine(24, 16, 104, 16, WHITE);

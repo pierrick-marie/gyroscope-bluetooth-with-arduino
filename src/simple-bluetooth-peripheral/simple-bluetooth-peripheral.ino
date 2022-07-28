@@ -25,23 +25,8 @@
 */
 
 #include <ArduinoBLE.h>
-#include <SPI.h>
-#include <Wire.h>
-#include <Adafruit_GFX.h>
-#include <Adafruit_SSD1306.h>
 
-#define SCREEN_WIDTH 128 // OLED display width, in pixels
-#define SCREEN_HEIGHT 32 // OLED display height, in pixels
-
-#define OLED_RESET     -1 // Reset pin # (or -1 if sharing Arduino reset pin)
-#define SCREEN_ADDRESS 0x3C ///< See datasheet for Address; 0x3D for 128x64, 0x3C for 128x32
-
-#define NORT 0
-#define EAST 1
-#define PLUS 0
-#define MINUS 1
-
-byte pole, direction, value;
+byte pole, direction, angle;
 
 BLEService accelService("19b10000-e8f2-537e-4f6c-d104768a1214"); // Bluetooth® Low Energy Accelerometer Service
 
@@ -49,7 +34,7 @@ BLEService accelService("19b10000-e8f2-537e-4f6c-d104768a1214"); // Bluetooth® 
 // BLEByteCharacteristic accelCharacteristic("19b10001-e8f2-537e-4f6c-d104768a1214", BLERead | BLEWrite);
 BLEByteCharacteristic poleCharacteristic("19b10001-e8f2-537e-4f6c-d104768a1215", BLERead | BLEWrite);
 BLEByteCharacteristic directionCharacteristic("19b10001-e8f2-537e-4f6c-d104768a1216", BLERead | BLEWrite);
-BLEByteCharacteristic valueCharacteristic("19b10001-e8f2-537e-4f6c-d104768a1217", BLERead | BLEWrite);
+BLEByteCharacteristic angleCharacteristic("19b10001-e8f2-537e-4f6c-d104768a1217", BLERead | BLEWrite);
 
 void setup() {
 
@@ -71,7 +56,7 @@ void setup() {
 	// add the characteristic to the service
 	accelService.addCharacteristic(poleCharacteristic);
 	accelService.addCharacteristic(directionCharacteristic);
-	accelService.addCharacteristic(valueCharacteristic);
+	accelService.addCharacteristic(angleCharacteristic);
 
 	// add service
 	BLE.addService(accelService);
@@ -120,14 +105,14 @@ void loop() {
 				Serial.println(direction);
 			}
 
-			if (valueCharacteristic.written()) {
+			if (angleCharacteristic.written()) {
 				// accelValue = accelCharacteristic.value();
 				// accelCharacteristic.readValue(receivedValues, sizeof(receivedValues));
 
-				valueCharacteristic.readValue(value);
+				angleCharacteristic.readValue(angle);
 
-				Serial.print("Value: ");
-				Serial.println(value);
+				Serial.print("Angle: ");
+				Serial.println(angle);
 			}
 		}
 

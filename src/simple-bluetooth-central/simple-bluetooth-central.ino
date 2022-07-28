@@ -26,27 +26,9 @@
 
 #include <ArduinoBLE.h>
 
-#define MAX_VALUE 10
-#define WAIT_VALUE 200
+byte pole, direction, angle;
 
-#define NORT 0
-#define EAST 1
-#define PLUS 0
-#define MINUS 1
-
-float x, y, z;
-int degreesX = 0;
-int degreesY = 0;
-int degreesZ = 0;
-
-int i;
-int upAngle, leftAngle;
-int upValues[] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-int leftValues[] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-
-byte pole, direction, value;
-
-// BLECharacteristic accelCharacteristic("19b10001-e8f2-537e-4f6c-d104768a1214", BLERead | BLEWrite, false, sizeof(sendValues));
+// BLECharacteristic accelCharacteristic("19b10001-e8f2-537e-4f6c-d104768a1214", BLERead | BLEWrite, false, sizeof(sendangles));
 
 void setup() {
 
@@ -115,7 +97,7 @@ void fn_start_service(BLEDevice peripheral) {
 	// retrieve the pole characteristic
 	BLECharacteristic poleCharacteristic = peripheral.characteristic("19b10001-e8f2-537e-4f6c-d104768a1215");
 	BLECharacteristic directionCharacteristic = peripheral.characteristic("19b10001-e8f2-537e-4f6c-d104768a1216");
-	BLECharacteristic valueCharacteristic = peripheral.characteristic("19b10001-e8f2-537e-4f6c-d104768a1217");
+	BLECharacteristic angleCharacteristic = peripheral.characteristic("19b10001-e8f2-537e-4f6c-d104768a1217");
 
 	int i = 1;
 	// send values
@@ -127,13 +109,13 @@ void fn_start_service(BLEDevice peripheral) {
 		direction = (byte)(i + 3);
 		Serial.print(" Direction: ");
 		Serial.println(direction);
-		value = (byte)(i + 10);
-		Serial.print(" Value: ");
-		Serial.println(value);
+		angle = (byte)(i + 10);
+		Serial.print(" Angle: ");
+		Serial.println(angle);
 
 		poleCharacteristic.writeValue(pole);
 		directionCharacteristic.writeValue(direction);
-		valueCharacteristic.writeValue(value);
+		angleCharacteristic.writeValue(angle);
 
 		delay(1000);
 		i++;

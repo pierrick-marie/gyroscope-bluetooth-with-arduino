@@ -28,7 +28,7 @@
 #include <Arduino_LSM6DS3.h>
 
 #define MAX_VALUE 10
-#define WAIT_VALUE 100
+#define WAIT_VALUE 50
 
 #define NORTH 0
 #define EAST 1
@@ -36,16 +36,17 @@
 #define DOWN 1
 
 float x, y, z;
-int degreesX = 0;
-int degreesY = 0;
-int degreesZ = 0;
+float degreesX = 0.0;
+float degreesY = 0.0;
+float degreesZ = 0.0;
 
 int i;
-int upAngle, leftAngle;
-int upValues[] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-int leftValues[] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+float xAngle, yAngle, zAngle;
+float xValues[] = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
+float yValues[] = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
+float zValues[] = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
 
-byte pole, direction, value;
+byte pole, direction, angle;
 
 void setup() {
 
@@ -73,6 +74,7 @@ void loop() {
 
 	if (peripheral) {
 		// discovered a peripheral, print out address, local name, and advertised service
+		/*
 		Serial.print("Found ");
 		Serial.print(peripheral.address());
 		Serial.print(" '");
@@ -80,6 +82,7 @@ void loop() {
 		Serial.print("' ");
 		Serial.print(peripheral.advertisedServiceUuid());
 		Serial.println();
+		*/
 
 		if (peripheral.localName() != "ACCELEROMETER") {
 			return;
@@ -120,7 +123,7 @@ void fn_start_service(BLEDevice peripheral) {
 	// retrieve the Accelerometer characteristic
 	BLECharacteristic poleCharacteristic = peripheral.characteristic("19b10001-e8f2-537e-4f6c-d104768a1215");
 	BLECharacteristic directionCharacteristic = peripheral.characteristic("19b10001-e8f2-537e-4f6c-d104768a1216");
-	BLECharacteristic valueCharacteristic = peripheral.characteristic("19b10001-e8f2-537e-4f6c-d104768a1217");
+	BLECharacteristic angleCharacteristic = peripheral.characteristic("19b10001-e8f2-537e-4f6c-d104768a1217");
 
 	if (!poleCharacteristic) {
 		Serial.println("Peripheral does not have Accelerator characteristic!");
@@ -133,107 +136,122 @@ void fn_start_service(BLEDevice peripheral) {
 	}
 
 	// send values
-	int angle;
 	while (peripheral.connected()) {
 
-		angle = fn_get_angle();
-		Serial.print("Final up angle = ");
-		Serial.print(angle);
-		Serial.println("°");
-
-		if (angle > 315 && angle <= 360) {
+		fn_get_angles();
+		if (xAngle >= 75.0) { // NORTH pole
 			pole = (byte)NORTH;
-			direction = (byte)DOWN;
-			value = (byte)abs(360 - angle);
-		}
-		if (angle >= 0 && angle < 45) {
-			pole = (byte)NORTH;
-			direction = (byte)UP;
-			value = (byte)angle;
-		}
-		if (angle > 225 && angle <= 270) {
-			pole = (byte)EAST;
-			direction = (byte)DOWN;
-			value = (byte)abs(270 - angle);
-		}
-		if (angle >= 270 && angle < 315) {
-			pole = (byte)EAST;
-			direction = (byte)UP;
-			value = (byte)abs(270 - angle);
+			if (zAngle >= 0.0) { // UP side
+				direction = (byte)DOWN;
+			} else {
+				direction = (byte)UP;
+			}
+			angle = fn_get_round(abs(zAngle));
+		} else {
+			if (zAngle >= 75.0) { // EAST pole
+				pole = (byte)EAST;
+				if (xAngle >= 0.0) { // UP side
+					direction = (byte)UP;
+				} else {
+					direction = (byte)DOWN;
+				}
+				angle = fn_get_round(abs(xAngle));
+			}
 		}
 
+		/*
 		Serial.print("Pole: ");
 		Serial.print(pole);
 		Serial.print(" Direction: ");
 		Serial.print(direction);
-		Serial.print(" Value: ");
-		Serial.println(value);
+		Serial.print(" Angle: ");
+		Serial.print("° ----> ");
+		Serial.print(angle);
+		Serial.println("°");
+		*/
 
 		poleCharacteristic.writeValue(pole);
 		directionCharacteristic.writeValue(direction);
-		valueCharacteristic.writeValue(value);
+		angleCharacteristic.writeValue(angle);
 	}
 
 	Serial.println("Peripheral disconnected");
 }
 
-int fn_get_angle() {
+byte fn_get_round(float value) {
+	byte res = (byte) value; // get integer part of finalAngle
+	value = value - res; // get decimal part of finalAngle
+	if (value >= 0.5 && value < 1) {
+		res = res + 1;
+		return res;
+	}
+}
+
+void fn_get_angles() {
 
 	for (i = 0; i < MAX_VALUE; i++) {
 		if (IMU.accelerationAvailable()) {
 			IMU.readAcceleration(x, y, z);
 		}
 
-		x = -100 * x;
-		degreesX = map(x, -100, 100, -90, 90);
-		upValues[i] = degreesX;
+		x = -100.0 * x;
+		degreesX = map(x, -100.9, 99.9, -90.0, 90.0);
+		xValues[i] = degreesX;
+		// xValues[i] = x;
 
-		z = 100 * z;
-		degreesZ = map(z, -100, 100, -90, 90);
-		leftValues[i] = degreesZ;
+		y = -100.0 * y;
+		degreesY = map(y, -100.0, 100.0, -90.0, 90.0);
+		yValues[i] = degreesY;
+
+		z = 100.0 * z;
+		degreesZ = map(z, -100.0, 100.0, -90.0, 90.0);
+		zValues[i] = degreesZ;
 
 		delay(WAIT_VALUE);
 	}
 
-	upAngle = fn_mean(upValues);
-	leftAngle = fn_mean(leftValues);
+	xAngle = fn_mean(xValues);
+	yAngle = fn_mean(yValues);
+	zAngle = fn_mean(zValues);
 
-	if (leftAngle > 0) { // left side
-		upAngle = 270 + upAngle;
-	} else { // leftAngle > 0 => rigt side
-		upAngle = 90 - upAngle;
-	}
-
-	return upAngle;
+	/*
+	Serial.print("DEBUG xAngle: ");
+	Serial.print(xAngle);
+	Serial.print("° -- yAngle: ");
+	Serial.print(yAngle);
+	Serial.print("° -- zAngle: ");
+	Serial.print(zAngle);
+	Serial.println("°");
+	*/
 }
 
-int fn_decade(int value) {
+int fn_decade(float value) {
 
-	int res = value / MAX_VALUE;
-	return res * MAX_VALUE;
+	int res = value / 10;
+	return res * 10;
 }
 
-int fn_unit(int value) {
+int fn_unit(float value) {
 
 	int decade = fn_decade(value);
 	return value - decade;
 }
 
-int fn_simplify(int value) {
+int fn_simplify(float value) {
 
 	int unit = fn_unit(value);
 
-	if (unit >= 5) {
+	if (unit >= 5.0) {
 		return fn_decade(value) + 10;
 	} else {
 		return fn_decade(value);
 	}
 }
 
-int fn_mean(int values[]) {
+float fn_mean(float values[]) {
 
-	int res = 0;
-	for (int i = 0; i < MAX_VALUE; i++) {
+	float res = 0.0;
+	for (i = 0; i < MAX_VALUE; i++) {
 		res = res + values[i];
 	}
 	return res / MAX_VALUE;

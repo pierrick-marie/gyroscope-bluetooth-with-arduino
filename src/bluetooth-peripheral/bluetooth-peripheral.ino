@@ -130,26 +130,24 @@ void loop() {
 
 			if (poleChanged && directionChanged && angleChanged) {
 
+				/*
 				Serial.print("Pole: ");
 				Serial.print(pole);
 				Serial.print(" Direction: ");
 				Serial.print(direction);
 				Serial.print(" Angle: ");
 				Serial.println(angle);
+				*/
 
-				if (pole == NORTH && angle < 1) {
-						Serial.println("Draw line 0");
+				if (pole == NORTH && angle == 0) {
 						fn_draw_line(0);
 				} else {
-					if (pole == EAST && angle < 1) {
-						Serial.println("Draw line 90");
+					if (pole == EAST && angle == 0) {
 						fn_draw_line(90);
 					} else {
 						if (direction == UP) {
-							Serial.println("Draw up arrow");
 							fn_draw_up(fn_get_nb_arrow(angle));
 						} else {
-							Serial.println("Draw down arrow");
 							fn_draw_down(fn_get_nb_arrow(angle));
 						}
 					}
@@ -268,11 +266,15 @@ void fn_draw_line(int value) {
 			case 0:
 		case 180:
 		case 360:
+			display.drawLine(63, 0, 63, 31, WHITE);
 			display.drawLine(64, 0, 64, 31, WHITE);
 			display.drawLine(65, 0, 65, 31, WHITE);
+			display.drawLine(66, 0, 66, 31, WHITE);
+			display.drawLine(67, 0, 67, 31, WHITE);
 			break;
 		case 90:
 		case 270:
+			display.drawLine(24, 15, 104, 15, WHITE);
 			display.drawLine(24, 16, 104, 16, WHITE);
 			display.drawLine(24, 17, 104, 17, WHITE);
 			break;

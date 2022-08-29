@@ -15,6 +15,8 @@ Le premier mesure son inclinaison en degrès puis transmet en Bluetooth la valeu
 
 Les deux modules Arduino sont autonomes à l'aide d'une petite batterie USB.
 
+![Schema d'ensemble du montage](https://framagit.org/pierrick/gyroscope-ble/-/raw/main/docs/schema/vue-densemble.png)
+
 # Documentation
 
 * Comment connecter deux Arduino en Bluetooth : https://docs.arduino.cc/tutorials/nano-33-ble-sense/ble-device-to-device?utm_source=pocket_mylist

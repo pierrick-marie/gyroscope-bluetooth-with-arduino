@@ -7,6 +7,12 @@ Gyroscope à affichage déporté en Bluetooth basé sur deux Arduino Nano 33 IoT
 
 https://framagit.org/pierrick/gyroscope-ble/-/raw/main/LICENCE
 
+# Code source
+
+```
+	git clone https://framagit.org/pierrick/gyroscope-bluetooth.git
+```
+
 # Objectif 
 
 L'objectif du projet est de mesurer l'inclinaison d'une pente en degrès en temps réel et l'afficher sur écran déporté.
@@ -22,11 +28,19 @@ Les deux modules Arduino sont autonomes à l'aide d'une petite batterie USB.
 
 ![Schema d'ensemble du montage](https://framagit.org/pierrick/gyroscope-ble/-/raw/main/docs/schema/vue-densemble.png)
 
+# Structure du projet
+
+* *src/examples* : des exemples pour manipuler l'accéléromètre, le gyroscope, l'écran I2C et le Bluetooth.
+* *src/project* : les programmes finaux du gyroscope et de l'écran i2c qui communiquent en Bluetooth.
+* *docs* : toute la documentation concernant le matériel utilisé.
+
 # Documentation
 
 * Comment connecter deux Arduino en Bluetooth : https://docs.arduino.cc/tutorials/nano-33-ble-sense/ble-device-to-device?utm_source=pocket_mylist
 * Utiliser l'accelerometre : https://docs.arduino.cc/tutorials/nano-33-iot/imu-accelerometer?utm_source=pocket_mylist
 * Utiliser l'écran OLED : https://passionelectronique.fr/ecran-oled-i2c-arduino/?utm_source=pocket_mylist
+
+Toute la documentation est disponible dans le dossier *docs* du projet.
 
 # Auteur
 

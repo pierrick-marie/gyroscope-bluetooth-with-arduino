@@ -1,28 +1,6 @@
-/*
-    Accelerometer Control
-
-    This program scans for Bluetooth® Low Energy peripherals until one with the advertised service
-    "19b10000-e8f2-537e-4f6c-d104768a1214" UUID is found. Once discovered and connected,
-    it will remotely control the Bluetooth® Low Energy peripheral's Accelerometer.
-
-    The circuit:
-      - Arduino MKR WiFi 1010, Arduino Uno WiFi Rev2 board, Arduino Nano 33 IoT, Arduino Nano 33 BLE, or Arduino Nano 33 BLE Sense board.
-
-    Licence
-      DO WHAT THE FUCK YOU WANT TO PUBLIC LICENSE
-                   Version 2, December 2004
-
-      Copyright (C) 2004 Sam Hocevar <sam@hocevar.net>
-
-      Everyone is permitted to copy and distribute verbatim or modified
-      copies of this license document, and changing it is allowed as long
-      as the name is changed.
-
-      DO WHAT THE FUCK YOU WANT TO PUBLIC LICENSE
-      TERMS AND CONDITIONS FOR COPYING, DISTRIBUTION AND MODIFICATION
-
-      0. You just DO WHAT THE FUCK YOU WANT TO.
-*/
+/**
+ *	This is the gyroscope part of the project. It gets the angle of the Arduino and send the measure through the Bluetooth connection.
+ */
 
 #include <ArduinoBLE.h>
 #include <Arduino_LSM6DS3.h>

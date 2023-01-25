@@ -1,8 +1,11 @@
-# Gyroscope Bluetooth
+Gyroscope Arduino Bluetooth
+=============================
 
 Gyroscope à affichage déporté en Bluetooth basé sur deux Arduino Nano 33 IoT et un écran LCD.
 
-# Licence DO WHAT THE FUCK YOU WANT TO PUBLIC LICENSE
+# License BSD 3-Clause
+
+https://framagit.org/pierrick/gyroscope-ble/-/raw/main/LICENCE
 
 # Objectif 
 
@@ -25,3 +28,14 @@ Les deux modules Arduino sont autonomes à l'aide d'une petite batterie USB.
 * Utiliser l'accelerometre : https://docs.arduino.cc/tutorials/nano-33-iot/imu-accelerometer?utm_source=pocket_mylist
 * Utiliser l'écran OLED : https://passionelectronique.fr/ecran-oled-i2c-arduino/?utm_source=pocket_mylist
 
+# Auteur
+
+Developpeur: Pierrick MARIE contact at pierrickmarie.info
+
+# Contribuer
+
+N'hésitez pas à améliorer ce programme en envoyant des PR ou me contacter directement par mail.
+
+# Badges
+
+[![License](https://img.shields.io/badge/License-BSD%203--Clause-green.svg)](https://opensource.org/licenses/BSD-3-Clause) [![made-for-Arduino](https://img.shields.io/badge/Made%20for-Arduino-%23E34F26.svg)](https://www.arduino.cc/)

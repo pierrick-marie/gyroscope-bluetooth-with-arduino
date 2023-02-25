@@ -10,7 +10,7 @@ https://raw.githubusercontent.com/pierrick-marie/Gyroscope-Bluetooth-with-Arduin
 # Code source
 
 ```
-	git clone https://framagit.org/pierrick/gyroscope-bluetooth.git
+	git clone https://github.com/pierrick-marie/Gyroscope-Bluetooth-with-Arduino.git
 ```
 
 # Objectif 

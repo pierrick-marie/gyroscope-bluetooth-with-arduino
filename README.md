@@ -5,7 +5,7 @@ Gyroscope à affichage déporté en Bluetooth basé sur deux Arduino Nano 33 IoT
 
 # License BSD 3-Clause
 
-https://framagit.org/pierrick/gyroscope-ble/-/raw/main/LICENCE
+https://raw.githubusercontent.com/pierrick-marie/Gyroscope-Bluetooth-with-Arduino/main/LICENCE
 
 # Code source
 
